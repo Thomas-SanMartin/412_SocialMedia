@@ -1,25 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import UserSelection from './components/UserSelection';
+import ProfileSelection from './components/ProfileSelection';
+import ProfileDetails from './components/ProfileDetails';
 
-function App() {
+const App = () => {
+  const navigate = useNavigate();
+
+  const handleUserSelect = (userId) => {
+    if (userId) {
+      navigate(`/profiles/${userId}`);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<UserSelection onUserSelect={handleUserSelect} />} />
+      <Route path="/profiles/:userId" element={<ProfileSelection />} />
+      <Route path="/profile/:profileId" element={<ProfileDetails />} />
+    </Routes>
   );
-}
+};
 
 export default App;
