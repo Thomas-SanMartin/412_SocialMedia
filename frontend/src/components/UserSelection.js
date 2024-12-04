@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const UserSelection = ({ onUserSelect }) => {
   const [users, setUsers] = useState([]);
@@ -8,14 +8,14 @@ const UserSelection = ({ onUserSelect }) => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5001/users')
+      .get("http://localhost:5001/users")
       .then((response) => {
         setUsers(response.data);
         setLoading(false); // Stop loading when data is fetched
       })
       .catch((error) => {
-        console.error('Error fetching users:', error);
-        setError('Failed to fetch users. Please try again later.');
+        console.error("Error fetching users:", error);
+        setError("Failed to fetch users. Please try again later.");
         setLoading(false);
       });
   }, []);
