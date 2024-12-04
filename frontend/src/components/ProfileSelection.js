@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
-const ProfileSelection = () => {
-  const { userId } = useParams(); // Extract userId from the URL
-  const navigate = useNavigate();
+const ProfileSelection = ({ onProfileSelect }) => {
+  const { userId } = useParams();
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newProfile, setNewProfile] = useState({
-    p_name: '',
-    p_email: '',
-    p_username: '',
-    p_password: '',
+    p_name: "",
+    p_email: "",
+    p_username: "",
+    p_password: "",
   });
 
   useEffect(() => {
@@ -24,16 +23,14 @@ const ProfileSelection = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Error fetching profiles:', err);
-        setError('Failed to fetch profiles. Please try again later.');
+        console.error("Error fetching profiles:", err);
+        setError("Failed to fetch profiles. Please try again later.");
         setLoading(false);
       });
   }, [userId]);
 
-  const handleProfileSelect = (profileId) => {
-    if (profileId) {
-      navigate(`/profile/${profileId}`);
-    }
+  const handleProfileSelect = (profileId, profileName) => {
+    onProfileSelect(profileId, profileName); // Pass both to App.js
   };
 
   const handleInputChange = (e) => {
@@ -46,17 +43,22 @@ const ProfileSelection = () => {
   const handleCreateProfile = (e) => {
     e.preventDefault();
     axios
-      .post('http://localhost:5001/profiles', {
+      .post("http://localhost:5001/profiles", {
         ...newProfile,
-        u_id: userId, // Associate the new profile with the current user
+        u_id: userId,
       })
       .then((response) => {
-        setProfiles([...profiles, response.data]); // Add the new profile to the list
-        setNewProfile({ p_name: '', p_email: '', p_username: '', p_password: '' }); // Reset form
+        setProfiles([...profiles, response.data]);
+        setNewProfile({
+          p_name: "",
+          p_email: "",
+          p_username: "",
+          p_password: "",
+        });
       })
       .catch((err) => {
-        console.error('Error creating profile:', err);
-        alert('Failed to create profile. Please try again.');
+        console.error("Error creating profile:", err);
+        alert("Failed to create profile. Please try again.");
       });
   };
 
@@ -72,7 +74,16 @@ const ProfileSelection = () => {
     <div>
       <h1>Profiles for User {userId}</h1>
       {profiles.length > 0 ? (
-        <select onChange={(e) => handleProfileSelect(e.target.value)}>
+        <select
+          onChange={(e) => {
+            const selectedProfile = profiles.find(
+              (profile) => profile.p_id === parseInt(e.target.value)
+            );
+            if (selectedProfile) {
+              handleProfileSelect(selectedProfile.p_id, selectedProfile.p_name);
+            }
+          }}
+        >
           <option value="">-- Select Profile --</option>
           {profiles.map((profile) => (
             <option key={profile.p_id} value={profile.p_id}>
