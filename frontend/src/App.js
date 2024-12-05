@@ -5,6 +5,7 @@ import ProfileSelection from "./components/ProfileSelection";
 import ProfileDetails from "./components/ProfileDetails";
 import GroupDetails from "./components/GroupDetails";
 import PostDetails from "./components/PostDetails";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const App = () => {
   const [loggedInProfileId, setLoggedInProfileId] = useState(null);
@@ -18,14 +19,22 @@ const App = () => {
   };
 
   return (
-    <div>
-      <a href="/">HOME </a>
-      {loggedInProfileId && (
-        <p>
-          Logged in as: {loggedInProfileName || "Unknown Profile"} (Profile ID:{" "}
-          {loggedInProfileId})
-        </p>
-      )}
+    <div className="container mt-4">
+      
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        
+        <a href="/" className="btn btn-primary">
+          HOME
+        </a>
+        
+        {loggedInProfileId && (
+          <p className="mb-0">
+            <strong>Logged in as:</strong> {loggedInProfileName || "Unknown Profile"}{" "}
+            <span className="text-muted">(Profile ID: {loggedInProfileId})</span>
+          </p>
+        )}
+        <h1>412 Social Media</h1>
+      </div>
 
       <Routes>
         <Route

@@ -5,6 +5,7 @@ import axios from "axios";
 const ProfileSelection = ({ onProfileSelect }) => {
   const { userId } = useParams();
   const [profiles, setProfiles] = useState([]);
+  const [userName, setUserName] = useState(""); // State for the user's name
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newProfile, setNewProfile] = useState({
@@ -15,18 +16,25 @@ const ProfileSelection = ({ onProfileSelect }) => {
   });
 
   useEffect(() => {
-    // Fetch profiles for the selected user
-    axios
-      .get(`http://localhost:5001/profiles/${userId}`)
-      .then((response) => {
-        setProfiles(response.data);
+    const fetchUserAndProfiles = async () => {
+      try {
+        // Fetch user details
+        const userResponse = await axios.get(`http://localhost:5001/users/${userId}`);
+        setUserName(userResponse.data.u_name);
+
+        // Fetch profiles for the user
+        const profilesResponse = await axios.get(`http://localhost:5001/profiles/${userId}`);
+        setProfiles(profilesResponse.data);
+
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching profiles:", err);
-        setError("Failed to fetch profiles. Please try again later.");
+      } catch (err) {
+        console.error("Error fetching user or profiles:", err);
+        setError("Failed to fetch user or profiles. Please try again later.");
         setLoading(false);
-      });
+      }
+    };
+
+    fetchUserAndProfiles();
   }, [userId]);
 
   const handleProfileSelect = (profileId, profileName) => {
@@ -63,74 +71,106 @@ const ProfileSelection = ({ onProfileSelect }) => {
   };
 
   if (loading) {
-    return <p>Loading profiles...</p>;
+    return <p className="text-center">Loading profiles...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="text-danger text-center">{error}</p>;
   }
 
   return (
-    <div>
-      <h1>Profiles for User {userId}</h1>
-      {profiles.length > 0 ? (
-        <select
-          onChange={(e) => {
-            const selectedProfile = profiles.find(
-              (profile) => profile.p_id === parseInt(e.target.value)
-            );
-            if (selectedProfile) {
-              handleProfileSelect(selectedProfile.p_id, selectedProfile.p_name);
-            }
-          }}
-        >
-          <option value="">-- Select Profile --</option>
-          {profiles.map((profile) => (
-            <option key={profile.p_id} value={profile.p_id}>
-              {profile.p_name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <p>No profiles found for this user.</p>
-      )}
+    <div className="container mt-4">
+      <div className="card shadow-sm p-4">
+        <h1 className="text-center mb-4">Profiles for {userName}</h1>
+        {profiles.length > 0 ? (
+          <div className="form-group">
+            <label htmlFor="profileSelect">Select a Profile</label>
+            <select
+              id="profileSelect"
+              className="form-control mb-3"
+              onChange={(e) => {
+                const selectedProfile = profiles.find(
+                  (profile) => profile.p_id === parseInt(e.target.value)
+                );
+                if (selectedProfile) {
+                  handleProfileSelect(
+                    selectedProfile.p_id,
+                    selectedProfile.p_name
+                  );
+                }
+              }}
+            >
+              <option value="">-- Select Profile --</option>
+              {profiles.map((profile) => (
+                <option key={profile.p_id} value={profile.p_id}>
+                  {profile.p_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <p>No profiles found for this user.</p>
+        )}
 
-      <h2>Create a New Profile</h2>
-      <form onSubmit={handleCreateProfile}>
-        <input
-          type="text"
-          name="p_name"
-          placeholder="Profile Name"
-          value={newProfile.p_name}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="email"
-          name="p_email"
-          placeholder="Email"
-          value={newProfile.p_email}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="text"
-          name="p_username"
-          placeholder="Username"
-          value={newProfile.p_username}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="password"
-          name="p_password"
-          placeholder="Password"
-          value={newProfile.p_password}
-          onChange={handleInputChange}
-          required
-        />
-        <button type="submit">Create Profile</button>
-      </form>
+        <h2 className="mt-4">Create a New Profile</h2>
+        <form onSubmit={handleCreateProfile}>
+          <div className="form-group">
+            <label htmlFor="profileName">Profile Name</label>
+            <input
+              type="text"
+              id="profileName"
+              name="p_name"
+              className="form-control"
+              placeholder="Profile Name"
+              value={newProfile.p_name}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="p_email"
+              className="form-control"
+              placeholder="Email"
+              value={newProfile.p_email}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="p_username"
+              className="form-control"
+              placeholder="Username"
+              value={newProfile.p_username}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="p_password"
+              className="form-control"
+              placeholder="Password"
+              value={newProfile.p_password}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary mt-3">
+            Create Profile
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

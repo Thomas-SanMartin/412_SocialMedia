@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import axios from "axios";
 
 const GroupDetails = () => {
   const { groupId } = useParams();
@@ -20,8 +20,8 @@ const GroupDetails = () => {
         setMembers(membersRes.data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching group details:', err);
-        setError('Failed to fetch group details. Please try again later.');
+        console.error("Error fetching group details:", err);
+        setError("Failed to fetch group details. Please try again later.");
         setLoading(false);
       }
     };
@@ -34,34 +34,43 @@ const GroupDetails = () => {
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="text-danger">{error}</p>;
   }
 
   return (
-    <div>
-      <h1>Group Details</h1>
-      {group ? (
-        <div>
-          <h2>{group.g_name}</h2>
-          <p>Members: {group.g_members}</p>
-          <p>Creator Profile ID: {group.g_creator}</p>
-        </div>
-      ) : (
-        <p>Group not found.</p>
-      )}
+    <div className="container mt-4">
+      <div className="text-center mb-4">
+        <h1>Group Details</h1>
+        {group ? (
+          <div className="card p-3">
+            <h2 className="card-title">{group.g_name}</h2>
+            <p className="card-text">Members: {group.g_members}</p>
+            <p className="card-text">Creator Profile ID: {group.g_creator}</p>
+          </div>
+        ) : (
+          <p className="text-danger">Group not found.</p>
+        )}
+      </div>
 
-      <h2>Group Members</h2>
-      {members.length > 0 ? (
-        <ul>
-          {members.map((member) => (
-            <li key={member.p_id}>
-              <Link to={`/profile/${member.p_id}`}>{member.p_name}</Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No members found in this group.</p>
-      )}
+      <div className="mb-5">
+        <h2>Group Members</h2>
+        {members.length > 0 ? (
+          <ul className="list-group">
+            {members.map((member) => (
+              <li key={member.p_id} className="list-group-item">
+                <Link
+                  to={`/profile/${member.p_id}`}
+                  className="text-decoration-none"
+                >
+                  {member.p_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No members found in this group.</p>
+        )}
+      </div>
     </div>
   );
 };
