@@ -5,6 +5,7 @@ import axios from "axios";
 const ProfileDetails = ({ loggedInProfileId, loggedInProfileName }) => {
   const { profileId } = useParams();
   const [isOwner, setIsOwner] = useState(false);
+  const [viewedProfileName, setViewedProfileName] = useState(""); // State for viewed profile's name
   const [joinedGroups, setJoinedGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -15,10 +16,27 @@ const ProfileDetails = ({ loggedInProfileId, loggedInProfileName }) => {
   const [errorGroups, setErrorGroups] = useState(null);
   const [errorPosts, setErrorPosts] = useState(null);
 
+  // Determine ownership of the profile
   useEffect(() => {
     setIsOwner(parseInt(profileId) === loggedInProfileId);
   }, [profileId, loggedInProfileId]);
 
+  // Fetch the name of the currently viewed profile
+  useEffect(() => {
+    const fetchProfileName = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/profile/${profileId}`);
+        setViewedProfileName(response.data.p_name); 
+      } catch (err) {
+        console.error("Error fetching profile name:", err);
+        setViewedProfileName("Unknown Profile");
+      }
+    };
+
+    fetchProfileName();
+  }, [profileId]);
+
+  // Fetch groups for the profile
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -45,6 +63,7 @@ const ProfileDetails = ({ loggedInProfileId, loggedInProfileName }) => {
     fetchGroups();
   }, [profileId]);
 
+  // Fetch posts for the profile
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -127,7 +146,7 @@ const ProfileDetails = ({ loggedInProfileId, loggedInProfileName }) => {
     <div className="container mt-4">
       {/* Profile Header */}
       <div className="text-center mb-4">
-        <h1>{loggedInProfileName || "Profile Details"}</h1>
+        <h1>{viewedProfileName || "Profile Details"}</h1>
         <p className="text-muted">
           {isOwner ? "Your Profile" : `Viewing Profile ID: ${profileId}`}
         </p>
